@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -12,11 +13,18 @@ type UserRepository interface {
 	SaveUser(user *User) error
 }
 
-var userRepo UserRepository
+type TokenRepository interface {
+	Save(token *jwt.Token) error
+}
 
-// takes dependencies for the package
-func Init(ur UserRepository) {
+var (
+	userRepo  UserRepository
+	tokenRepo TokenRepository
+)
+
+func Init(ur UserRepository, tr TokenRepository) {
 	userRepo = ur
+	tokenRepo = tr
 }
 
 func RegisterUser(user *User) error {
@@ -40,7 +48,7 @@ func RegisterUser(user *User) error {
 	return nil
 }
 
-func Login(user *User) (*Token, error) {
+func Login(user *User) (*jwt.Token, error) {
 	if err := checkUserFormat(user); err != nil {
 		return nil, err
 	}
@@ -54,7 +62,9 @@ func Login(user *User) (*Token, error) {
 		return nil, err
 	}
 
-	return NewToken(), nil
+	token := issueToken(user.Name)
+
+	return token, nil
 }
 
 // ============================================================================
