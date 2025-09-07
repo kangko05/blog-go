@@ -2,40 +2,55 @@ package auth
 
 import "fmt"
 
-type mockUserRepository struct {
+type mockAuthRepository struct {
 	resultState bool
+	user        *User
 }
 
-func newMockUserRepository(resultState bool) *mockUserRepository {
-	return &mockUserRepository{resultState: resultState}
-}
-
-func (mur *mockUserRepository) CheckUserExists(_ string) bool {
-	return !mur.resultState
-}
-
-func (mur *mockUserRepository) GetUser(username string) (*User, error) {
-	if mur.resultState {
-		return NewUser(username, "hashed password"), nil
+func newMockAuthRepository(resultState bool, testUser *User) (*mockAuthRepository, error) {
+	hashed, err := hashPassword(testUser.Password)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, fmt.Errorf("failed to get user")
+	return &mockAuthRepository{
+		resultState: resultState,
+		user:        NewUser(testUser.Name, string(hashed)),
+	}, nil
 }
 
-func (mur *mockUserRepository) SaveUser(user *User) error {
-	if mur.resultState {
+func (mar *mockAuthRepository) CheckUserExists(username string) bool {
+	return mar.user.Name == username
+}
+
+func (mar *mockAuthRepository) GetUser(username string) (*User, error) {
+	if mar.user.Name == username {
+		return mar.user, nil
+	}
+
+	return nil, fmt.Errorf("failed to find user")
+}
+
+func (mar *mockAuthRepository) SaveUser(user *User) error {
+	if mar.resultState {
 		return nil
 	}
 
 	return fmt.Errorf("failed to save user")
 }
 
-// ===========================================================================
+func (mar *mockAuthRepository) SaveToken(token *Token) error {
+	if mar.resultState {
+		return nil
+	}
 
-type mockTokenRepository struct {
-	resultState bool
+	return fmt.Errorf("failed to save token")
 }
 
-func newMockTokenRepository(resultState bool) *mockTokenRepository {
-	return &mockTokenRepository{resultState: resultState}
+func (mar *mockAuthRepository) DeleteToken(tokenString string) error {
+	if mar.resultState {
+		return nil
+	}
+
+	return fmt.Errorf("failed to delete token")
 }
