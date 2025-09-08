@@ -11,6 +11,7 @@ import (
 	"blog-go/auth"
 	"blog-go/config"
 	"blog-go/database"
+	"blog-go/logger"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -20,6 +21,8 @@ func TestMain(m *testing.M) {
 		JwtSecret:    "test-secret",
 		DatabasePath: ":memory:",
 	}
+
+	Init(logger.NewConsoleLogger())
 
 	database.Init(cfg.DatabasePath)
 
@@ -34,6 +37,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestAuthAPI(t *testing.T) {
+
 	router := New()
 
 	t.Run("register user success", func(t *testing.T) {
