@@ -24,6 +24,7 @@ func issueToken(username string) (*Token, error) {
 		"username": username,
 		"iat":      now.Unix(),
 		"exp":      exp,
+		"nonce":    now.UnixNano(),
 	})
 
 	signedString, err := token.SignedString([]byte(JWT_SECRET))
