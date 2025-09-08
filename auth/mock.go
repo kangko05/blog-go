@@ -19,8 +19,12 @@ func newMockAuthRepository(resultState bool, testUser *User) (*mockAuthRepositor
 	}, nil
 }
 
-func (mar *mockAuthRepository) CheckUserExists(username string) bool {
-	return mar.user.Name == username
+func (mar *mockAuthRepository) CheckUserExists(username string) (bool, error) {
+	if mar.resultState {
+		return mar.user.Name == username, nil
+	} else {
+		return mar.user.Name == username, fmt.Errorf("failed to check user")
+	}
 }
 
 func (mar *mockAuthRepository) GetUser(username string) (*User, error) {
