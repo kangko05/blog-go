@@ -14,5 +14,7 @@ func main() {
 
 	router.Init(logger.NewConsoleLogger())
 
-	_ = router.New()
+	if err := router.New().Run(":8000"); err != nil {
+		panic(err)
+	}
 }

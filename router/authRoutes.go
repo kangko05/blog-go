@@ -26,12 +26,7 @@ func setupAuthRoutes(r *gin.Engine) {
 func handleRegisterUser(ctx *gin.Context) {
 	var reqUser RequestUser
 	if err := ctx.ShouldBindJSON(&reqUser); err != nil {
-
-		rlogger.Error("failed binding request user to json", map[string]any{
-			"error": err.Error(),
-			"ip":    ctx.ClientIP(),
-		})
-
+		ctx.Error(fmt.Errorf("failed to bind request user to json: %v", err))
 		sendError(ctx, http.StatusBadRequest, err)
 
 		return
@@ -42,11 +37,7 @@ func handleRegisterUser(ctx *gin.Context) {
 	})
 
 	if err := auth.RegisterUser(auth.NewUser(reqUser.UserName, reqUser.Password)); err != nil {
-		rlogger.Error("failed to register user", map[string]any{
-			"error": err.Error(),
-			"ip":    ctx.ClientIP(),
-		})
-
+		ctx.Error(fmt.Errorf("failed to register user: %v", err))
 		sendError(ctx, http.StatusUnauthorized, err)
 
 		return
