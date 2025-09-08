@@ -2,19 +2,11 @@ package auth
 
 import "fmt"
 
-type AuthRepository interface {
-	CheckUserExists(username string) bool
-	GetUser(username string) (*User, error)
-	SaveUser(user *User) error
-	SaveToken(token *Token) error
-	DeleteToken(tokenString string) error
-}
-
 const JWT_SECRET string = "secret key here"
 
-var authRepo AuthRepository
+var authRepo Repository
 
-func Init(ar AuthRepository) {
+func Init(ar Repository) {
 	authRepo = ar
 }
 
@@ -23,7 +15,11 @@ func RegisterUser(user *User) error {
 		return err
 	}
 
-	if authRepo.CheckUserExists(user.Name) {
+	exists, err := authRepo.CheckUserExists(user.Name)
+	if err != nil {
+		return err
+	}
+	if exists {
 		return fmt.Errorf("user already exists")
 	}
 
