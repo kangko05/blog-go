@@ -10,6 +10,7 @@ type Logger interface {
 	Debug(msg string, data map[string]any)
 	Warn(msg string, data map[string]any)
 	Error(msg string, data map[string]any)
+	Write(flag LogLevel, msg string, data map[string]any)
 }
 
 type ConsoleLogger struct{}
@@ -19,22 +20,22 @@ func NewConsoleLogger() *ConsoleLogger {
 }
 
 func (l *ConsoleLogger) Info(msg string, data map[string]any) {
-	l.write("INFO", msg, data)
+	l.Write(LogInfo, msg, data)
 }
 
 func (l *ConsoleLogger) Debug(msg string, data map[string]any) {
-	l.write("DEBUG", msg, data)
+	l.Write(LogDebug, msg, data)
 }
 
 func (l *ConsoleLogger) Warn(msg string, data map[string]any) {
-	l.write("WARN", msg, data)
+	l.Write(LogWarn, msg, data)
 }
 
 func (l *ConsoleLogger) Error(msg string, data map[string]any) {
-	l.write("ERROR", msg, data)
+	l.Write(LogError, msg, data)
 }
 
-func (l *ConsoleLogger) write(flag, msg string, data map[string]any) {
+func (l *ConsoleLogger) Write(flag LogLevel, msg string, data map[string]any) {
 	log.Printf("[%s] %s\n", flag, msg)
 
 	for k, v := range data {

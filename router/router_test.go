@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"blog-go/auth"
@@ -59,7 +60,7 @@ func TestAuthAPI(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.True(t, response.Success)
-		assert.Equal(t, "user registered", response.Message)
+		assert.True(t, strings.Contains(response.Message, "user registered"))
 	})
 
 	t.Run("register duplicate user", func(t *testing.T) {

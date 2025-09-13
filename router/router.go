@@ -3,10 +3,13 @@ package router
 import (
 	"blog-go/logger"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+const HandlerResultKey string = "HandlerResult"
 
 var rlogger logger.Logger
 
@@ -23,22 +26,28 @@ func routerLogger() gin.HandlerFunc {
 			"requestIP": ctx.ClientIP(),
 		})
 
+		hr := &HandlerResult{
+			RequestIP:     ctx.ClientIP(),
+			RequestMethod: ctx.Request.Method,
+			RequestURL:    ctx.Request.URL.RequestURI(),
+		}
+
+		ctx.Set(HandlerResultKey, hr)
+
 		ctx.Next()
 
 		duration := time.Since(start)
 
-		result := map[string]any{
-			"requestIP": ctx.ClientIP(),
-			"status":    ctx.Writer.Status(),
-			"duration":  duration,
+		hr.Duration = duration
+
+		// page not found
+		if hr.Status == 0 {
+			hr.LogLevel = logger.LogError
+			hr.Status = http.StatusNotFound
+			hr.Message = "page not found"
 		}
 
-		if len(ctx.Errors) > 0 {
-			result["error"] = ctx.Errors.Last().Error()
-			rlogger.Error("request failed", result)
-		} else {
-			rlogger.Info("request completed", result)
-		}
+		rlogger.Write(hr.LogLevel, hr.Message, hr.MapResult())
 	}
 }
 
