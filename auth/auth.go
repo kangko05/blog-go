@@ -45,6 +45,8 @@ func Login(user *User) (*Token, error) {
 		return nil, err
 	}
 
+	fmt.Println(foundUser)
+
 	if err := comparePasswords(foundUser.Password, user.Password); err != nil {
 		return nil, err
 	}
