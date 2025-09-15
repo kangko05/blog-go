@@ -2,7 +2,7 @@ package user
 
 import "golang.org/x/crypto/bcrypt"
 
-type UserRepository interface {
+type Repository interface {
 	GetUser(username string) (*User, error)
 	SaveUser(user *User) error
 }
@@ -24,7 +24,7 @@ func New(username, password string) (*User, error) {
 	}, nil
 }
 
-func Validate(ur UserRepository, username, plainPassword string) error {
+func Validate(ur Repository, username, plainPassword string) error {
 	foundUser, err := ur.GetUser(username)
 	if err != nil {
 		return err
