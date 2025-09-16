@@ -7,8 +7,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+<<<<<<< HEAD
 func TestMain(m *testing.M) {
 	if err := Init(nil, "jwt secret here"); err != nil {
+=======
+var authService *Service
+
+func TestMain(m *testing.M) {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "JwtSecret", "jwt secret here")
+	ctx = context.WithValue(ctx, "AuthRepo", nil)
+
+	var err error
+	authService, err = NewService(ctx)
+	if err != nil {
+>>>>>>> 6bd65ff (router done for now)
 		panic(err)
 	}
 

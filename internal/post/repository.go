@@ -13,8 +13,6 @@ type Repository interface {
 	UpdatePost(md *Post) error
 	DeletePost(id int) error
 	ListPosts() ([]*Post, error)
-
-	Close() error // cleanup code
 }
 
 // ============================================================================

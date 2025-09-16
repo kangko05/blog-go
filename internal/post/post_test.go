@@ -7,8 +7,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+<<<<<<< HEAD
 func TestMain(m *testing.M) {
 	if err := Init(nil); err != nil {
+=======
+var postService *Service
+
+func TestMain(m *testing.M) {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "PostRepository", nil)
+
+	var err error
+	postService, err = NewService(ctx)
+	if err != nil {
+>>>>>>> 6bd65ff (router done for now)
 		panic(err)
 	}
 

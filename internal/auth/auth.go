@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+<<<<<<< HEAD
 var (
 	repo      Repository
 	jwtSecret string
@@ -34,6 +35,9 @@ func Init(r Repository, js string) error {
 // ===========================================================================
 
 func Register(username, password string) error {
+=======
+func register(repo Repository, username, password string) error {
+>>>>>>> 6bd65ff (router done for now)
 	if err := checkUserFormat(username, password); err != nil {
 		return err
 	}

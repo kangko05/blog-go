@@ -13,8 +13,6 @@ type Repository interface {
 	GetToken(tokenString string) (string, error)
 	SaveToken(tokenString string) error
 	DeleteToken(tokenString string) error
-
-	Close() error // cleanup code
 }
 
 // ===========================================================================
