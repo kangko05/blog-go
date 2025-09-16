@@ -1,7 +1,6 @@
 package post
 
 import (
-	"log"
 	"time"
 
 	"github.com/gomarkdown/markdown"
@@ -42,27 +41,7 @@ func (p *Post) Html() string {
 
 // ============================================================================
 
-var repo Repository
-
-func Init(r Repository) error {
-	repo = r
-
-	if r == nil {
-		log.Println("[warn] got nil repository, using in-memory repo")
-		memRepo, err := connectSqlite()
-		if err != nil {
-			return err
-		}
-
-		repo = memRepo
-	}
-
-	return nil
-}
-
-// ============================================================================
-
-func CreatePost(title, content string) (*Post, error) {
+func createPost(repo Repository, title, content string) (*Post, error) {
 	md := newPost(title, content)
 
 	if err := repo.SavePost(md); err != nil {
@@ -72,11 +51,11 @@ func CreatePost(title, content string) (*Post, error) {
 	return md, nil
 }
 
-func GetPost(id int) (*Post, error) {
+func getPost(repo Repository, id int) (*Post, error) {
 	return repo.GetPost(id)
 }
 
-func UpdatePost(id int, title, content string) error {
+func updatePost(repo Repository, id int, title, content string) error {
 	foundMd, err := repo.GetPost(id)
 	if err != nil {
 		return err
@@ -89,10 +68,10 @@ func UpdatePost(id int, title, content string) error {
 	return repo.UpdatePost(foundMd)
 }
 
-func DeletePost(id int) error {
+func deletePost(repo Repository, id int) error {
 	return repo.DeletePost(id)
 }
 
-func ListAllPosts() ([]*Post, error) {
+func listAllPosts(repo Repository) ([]*Post, error) {
 	return repo.ListPosts()
 }

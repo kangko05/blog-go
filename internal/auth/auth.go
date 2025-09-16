@@ -2,42 +2,11 @@ package auth
 
 import (
 	"fmt"
-	"log"
-	"testing"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/stretchr/testify/assert"
 )
 
-<<<<<<< HEAD
-var (
-	repo      Repository
-	jwtSecret string
-)
-
-func Init(r Repository, js string) error {
-	repo = r
-	jwtSecret = js
-
-	if r == nil {
-		log.Println("[warn] got nil repository, using in-memory repo")
-		memRepo, err := connectSqlite()
-		if err != nil {
-			return err
-		}
-
-		repo = memRepo
-	}
-
-	return nil
-}
-
-// ===========================================================================
-
-func Register(username, password string) error {
-=======
 func register(repo Repository, username, password string) error {
->>>>>>> 6bd65ff (router done for now)
 	if err := checkUserFormat(username, password); err != nil {
 		return err
 	}
@@ -50,7 +19,7 @@ func register(repo Repository, username, password string) error {
 	return repo.SaveUser(user)
 }
 
-func Login(username, password string) (string, error) {
+func login(repo Repository, jwtSecret, username, password string) (string, error) {
 	foundUser, err := repo.GetUser(username)
 	if err != nil {
 		return "", err
@@ -61,14 +30,19 @@ func Login(username, password string) (string, error) {
 		return "", err
 	}
 
-	return createToken(username)
+	return createToken(repo, jwtSecret, username)
 }
 
-func Logout(tokenString string) error {
-	return revokeToken(tokenString)
+func logout(repo Repository, tokenString string) error {
+	_, err := repo.GetToken(tokenString)
+	if err != nil {
+		return err
+	}
+
+	return revokeToken(repo, tokenString)
 }
 
-func VerifyToken(tokenString string) error {
+func verifyToken(repo Repository, jwtSecret, tokenString string) error {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
 		return []byte(jwtSecret), nil
 	})
@@ -88,46 +62,4 @@ func VerifyToken(tokenString string) error {
 	}
 
 	return nil
-}
-
-func TestVerifyToken(t *testing.T) {
-	username, password := "testverify", "testpass"
-	assert.Nil(t, Register(username, password))
-
-	t.Run("verify valid token", func(t *testing.T) {
-		token, err := Login(username, password)
-		assert.Nil(t, err)
-
-		err = VerifyToken(token)
-		assert.Nil(t, err)
-	})
-
-	t.Run("verify invalid token format", func(t *testing.T) {
-		err := VerifyToken("invalid.token.format")
-		assert.NotNil(t, err)
-
-		err = VerifyToken("not-a-token")
-		assert.NotNil(t, err)
-
-		err = VerifyToken("")
-		assert.NotNil(t, err)
-	})
-
-	t.Run("verify revoked token", func(t *testing.T) {
-		token, err := Login(username, password)
-		assert.Nil(t, err)
-
-		err = Logout(token)
-		assert.Nil(t, err)
-
-		err = VerifyToken(token)
-		assert.NotNil(t, err)
-	})
-
-	t.Run("verify token with wrong secret", func(t *testing.T) {
-		wrongToken := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.wrong_signature"
-
-		err := VerifyToken(wrongToken)
-		assert.NotNil(t, err)
-	})
 }

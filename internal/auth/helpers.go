@@ -35,13 +35,14 @@ func checkPassword(hashedPassword, plainPassword string) error {
 
 // ===========================================================================
 
-func createToken(username string) (string, error) {
+func createToken(repo Repository, jwtSecret, username string) (string, error) {
 	// create token
 	now := time.Now()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iat":      now.Unix(),
 		"exp":      now.Add(time.Hour).Unix(),
+		"jit":      now.UnixNano(),
 		"username": username,
 	})
 
@@ -57,6 +58,6 @@ func createToken(username string) (string, error) {
 	return signedString, nil
 }
 
-func revokeToken(tokenString string) error {
+func revokeToken(repo Repository, tokenString string) error {
 	return repo.DeleteToken(tokenString)
 }
