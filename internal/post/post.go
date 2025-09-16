@@ -32,7 +32,7 @@ func (p *Post) Html() string {
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs
 	np := parser.NewWithExtensions(extensions)
 
-	htmlFlags := html.CommonFlags | html.HrefTargetBlank
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank | html.Safelink
 	opts := html.RendererOptions{Flags: htmlFlags}
 	renderer := html.NewRenderer(opts)
 

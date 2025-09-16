@@ -19,7 +19,7 @@ func NewPostRepository(db *Database) (*PostRepository, error) {
 
 func (pr *PostRepository) createTables() error {
 	queries := []string{
-		`CREATE TABLE posts (
+		`CREATE TABLE IF NOT EXISTS posts (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
 			content TEXT NOT NULL,
