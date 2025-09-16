@@ -3,12 +3,15 @@ package server
 import (
 	"blog-go/internal/auth"
 	"blog-go/internal/post"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter(authService *auth.Service, postService *post.Service) *gin.Engine {
 	r := gin.Default()
+
+	r.GET("/checkhealth", handleCheckHealth())
 
 	auth := r.Group("/auth")
 	{
@@ -28,4 +31,10 @@ func SetupRouter(authService *auth.Service, postService *post.Service) *gin.Engi
 	}
 
 	return r
+}
+
+func handleCheckHealth() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Status(http.StatusOK)
+	}
 }
