@@ -11,6 +11,8 @@ import (
 func SetupRouter(authService *auth.Service, postService *post.Service) *gin.Engine {
 	r := gin.Default()
 
+	r.Use(accessLogMiddleware())
+
 	r.GET("/checkhealth", handleCheckHealth())
 
 	auth := r.Group("/auth")
