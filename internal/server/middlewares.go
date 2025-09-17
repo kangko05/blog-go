@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 )
 
 func authMiddleware(authService *auth.Service) gin.HandlerFunc {
@@ -32,6 +34,8 @@ func authMiddleware(authService *auth.Service) gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+// access log =================================================================
 
 type AccessLog struct {
 	TimeStamp time.Time `json:"timestamp"`
@@ -83,5 +87,71 @@ func accessLogMiddleware() gin.HandlerFunc {
 		if _, err := file.WriteString("\n"); err != nil {
 			log.Println(err)
 		}
+	}
+}
+
+// rate limiter================================================================
+
+type RateLimiter struct {
+	limiters map[string]*rate.Limiter
+	lastUsed map[string]time.Time
+	mu       sync.RWMutex
+}
+
+func (m *RateLimiter) cleanup() {
+	ticker := time.NewTicker(10 * time.Minute)
+	go func() {
+		for range ticker.C {
+			m.mu.Lock()
+			now := time.Now()
+			for ip, lastTime := range m.lastUsed {
+				if now.Sub(lastTime) > 30*time.Minute {
+					delete(m.limiters, ip)
+					delete(m.lastUsed, ip)
+				}
+			}
+			m.mu.Unlock()
+		}
+	}()
+}
+
+func (m *RateLimiter) getLimiter(ip string) *rate.Limiter {
+	m.mu.Lock()
+	limiter, exists := m.limiters[ip]
+	defer m.mu.Unlock()
+
+	m.lastUsed[ip] = time.Now()
+
+	if !exists {
+		limiter = rate.NewLimiter(rate.Limit(10), 30)
+		m.limiters[ip] = limiter
+	}
+
+	return limiter
+}
+
+func rateLimitMiddleware(limiter *RateLimiter) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		rlimiter := limiter.getLimiter(ctx.ClientIP())
+
+		if !rlimiter.Allow() {
+			ctx.Status(http.StatusTooManyRequests)
+			ctx.Abort()
+			return
+		}
+
+		ctx.Next()
+	}
+}
+
+// security header ============================================================
+
+func securityHeadersMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Header("X-Content-Type-Options", "nosniff")
+		ctx.Header("X-Frame-Options", "DENY")
+		ctx.Header("X-XSS-Protection", "1; mode=block")
+		ctx.Header("Strict-Transport-Security", "max-age=31536000")
+		ctx.Next()
 	}
 }

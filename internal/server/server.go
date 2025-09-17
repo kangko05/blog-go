@@ -4,14 +4,29 @@ import (
 	"blog-go/internal/auth"
 	"blog-go/internal/post"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 )
 
 func SetupRouter(authService *auth.Service, postService *post.Service) *gin.Engine {
 	r := gin.Default()
 
-	r.Use(accessLogMiddleware())
+	limiter := &RateLimiter{
+		limiters: make(map[string]*rate.Limiter),
+		lastUsed: make(map[string]time.Time),
+		mu:       sync.RWMutex{},
+	}
+
+	limiter.cleanup()
+
+	r.Use(
+		securityHeadersMiddleware(),
+		accessLogMiddleware(),
+		rateLimitMiddleware(limiter),
+	)
 
 	r.GET("/checkhealth", handleCheckHealth())
 
