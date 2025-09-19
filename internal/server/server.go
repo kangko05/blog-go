@@ -42,9 +42,9 @@ func SetupRouter(authService *auth.Service, postService *post.Service) *gin.Engi
 		post.GET("/", handleListAllPosts(postService))
 		post.GET("/:id", handleGetPost(postService))
 
-		post.POST("/", authMiddleware(authService), handleCreatePost(postService))
-		post.PUT("/:id", authMiddleware(authService), handleUpdatePost(postService))
-		post.DELETE("/:id", authMiddleware(authService), handleDeletePost(postService))
+		// post.POST("/", authMiddleware(authService), handleCreatePost(postService))
+		// post.PUT("/:id", authMiddleware(authService), handleUpdatePost(postService))
+		// post.DELETE("/:id", authMiddleware(authService), handleDeletePost(postService))
 	}
 
 	return r

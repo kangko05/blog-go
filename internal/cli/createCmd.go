@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"blog-go/internal/post"
 	"bufio"
 	"bytes"
 	"fmt"
@@ -19,10 +20,34 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
+	createCmd.Flags().Bool("proj", false, "set category to projects")
+	createCmd.Flags().Bool("notes", false, "set category to notes")
+
 	rootCmd.AddCommand(createCmd)
 }
 
 func createPost(cmd *cobra.Command, args []string) {
+	catNotes, _ := cmd.Flags().GetBool("notes")
+	catProj, _ := cmd.Flags().GetBool("proj")
+
+	if !(catNotes || catProj) {
+		fmt.Println("please specify a category: --notes or --proj")
+		return
+	}
+
+	if catNotes && catProj {
+		fmt.Println("cannot specify both categories")
+		return
+	}
+
+	var cat post.Category
+	if catNotes {
+		cat = post.NOTES
+	}
+	if catProj {
+		cat = post.PROJECTS
+	}
+
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
 		editor = "nvim"
@@ -57,7 +82,7 @@ func createPost(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if _, err := postService.CreatePost(extractTitle(content), string(content)); err != nil {
+	if _, err := postService.CreatePost(cat, extractTitle(content), string(content)); err != nil {
 		fmt.Println(err)
 		return
 	} else {

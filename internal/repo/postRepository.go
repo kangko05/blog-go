@@ -23,6 +23,7 @@ func (pr *PostRepository) createTables() error {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
 			content TEXT NOT NULL,
+			category TEXT NOT NULL,
 			created_at DATETIME,
 			updated_at DATETIME
 		)`,
@@ -40,8 +41,8 @@ func (pr *PostRepository) createTables() error {
 
 func (pr *PostRepository) SavePost(post *post.Post) error {
 	result, err := pr.db.command(
-		"INSERT INTO posts(title, content, created_at, updated_at) VALUES(?,?,?,?)",
-		post.Title, post.Content, post.CreatedAt, post.UpdatedAt,
+		"INSERT INTO posts(title, content, category, created_at, updated_at) VALUES(?,?,?,?,?)",
+		post.Title, post.Content, post.Category, post.CreatedAt, post.UpdatedAt,
 	)
 	if err != nil {
 		return err
@@ -61,8 +62,8 @@ func (pr *PostRepository) GetPost(id int) (*post.Post, error) {
 	var post post.Post
 
 	err := pr.db.queryRow(
-		"SELECT id,title,content,created_at,updated_at FROM posts WHERE id=?",
-		id).Scan(&post.Id, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt)
+		"SELECT id,title,content,category,created_at,updated_at FROM posts WHERE id=?",
+		id).Scan(&post.Id, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -86,7 +87,7 @@ func (pr *PostRepository) DeletePost(id int) error {
 }
 
 func (pr *PostRepository) ListPosts() ([]*post.Post, error) {
-	rows, err := pr.db.conn.Query("SELECT id,title,content,created_at,updated_at FROM posts")
+	rows, err := pr.db.conn.Query("SELECT id,title,content,category,created_at,updated_at FROM posts")
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +98,7 @@ func (pr *PostRepository) ListPosts() ([]*post.Post, error) {
 	for rows.Next() {
 		var post post.Post
 
-		err := rows.Scan(&post.Id, &post.Title, &post.Content, &post.CreatedAt, &post.UpdatedAt)
+		err := rows.Scan(&post.Id, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.UpdatedAt)
 		if err != nil {
 			log.Println(err)
 		}

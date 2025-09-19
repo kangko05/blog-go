@@ -17,8 +17,8 @@ func NewService(repo Repository) (*Service, error) {
 	return &Service{repo: repo}, nil
 }
 
-func (ps *Service) CreatePost(title, content string) (*Post, error) {
-	return createPost(ps.repo, title, content)
+func (ps *Service) CreatePost(cat Category, title, content string) (*Post, error) {
+	return createPost(ps.repo, cat, title, content)
 }
 
 func (ps *Service) GetPost(id int) (*Post, error) {
@@ -35,4 +35,34 @@ func (ps *Service) DeletePost(id int) error {
 
 func (ps *Service) ListAllPosts() ([]*Post, error) {
 	return listAllPosts(ps.repo)
+}
+
+// NOTE: if dataset gets larger, below should be handled in database
+func (ps *Service) ListCategory(cat Category) ([]*Post, error) {
+	posts, err := ps.ListAllPosts()
+	if err != nil {
+		return nil, err
+	}
+
+	if cat == ALL {
+		return posts, nil
+	}
+
+	var result []*Post
+
+	for _, post := range posts {
+		if post.Category == cat {
+			result = append(result, post)
+		}
+	}
+
+	return result, nil
+}
+
+func (ps *Service) ListNotes() ([]*Post, error) {
+	return ps.ListCategory(NOTES)
+}
+
+func (ps *Service) ListProjects() ([]*Post, error) {
+	return ps.ListCategory(PROJECTS)
 }

@@ -22,7 +22,7 @@ func TestCreatePost(t *testing.T) {
 	t.Run("create post success", func(t *testing.T) {
 		title, content := "Test Title", "# Test Content\n\nThis is a test post."
 
-		post, err := service.CreatePost(title, content)
+		post, err := service.CreatePost(NOTES, title, content)
 
 		assert.Nil(t, err)
 		assert.Equal(t, title, post.Title)
@@ -37,7 +37,7 @@ func TestGetPost(t *testing.T) {
 	defer cleanup()
 
 	title, content := "Get Test", "Content for get test"
-	createdPost, err := service.CreatePost(title, content)
+	createdPost, err := service.CreatePost(NOTES, title, content)
 	assert.Nil(t, err)
 
 	t.Run("get post success", func(t *testing.T) {
@@ -59,7 +59,7 @@ func TestUpdatePost(t *testing.T) {
 	defer cleanup()
 
 	originalTitle, originalContent := "Original Title", "Original content"
-	createdPost, _ := service.CreatePost(originalTitle, originalContent)
+	createdPost, _ := service.CreatePost(NOTES, originalTitle, originalContent)
 
 	t.Run("update post success", func(t *testing.T) {
 		newTitle, newContent := "Updated Title", "Updated content"
@@ -86,7 +86,7 @@ func TestDeletePost(t *testing.T) {
 	defer cleanup()
 
 	title, content := "Delete Test", "Content to be deleted"
-	createdPost, _ := service.CreatePost(title, content)
+	createdPost, _ := service.CreatePost(NOTES, title, content)
 
 	t.Run("delete post success", func(t *testing.T) {
 		err := service.DeletePost(createdPost.Id)
@@ -114,7 +114,7 @@ func TestListAllPosts(t *testing.T) {
 
 	var createdIds []int
 	for _, p := range posts {
-		created, _ := service.CreatePost(p.title, p.content)
+		created, _ := service.CreatePost(NOTES, p.title, p.content)
 		createdIds = append(createdIds, created.Id)
 	}
 
@@ -143,7 +143,7 @@ func TestMarkdownToHTML(t *testing.T) {
 		title := "Markdown Test"
 		content := "# Header\n\n**Bold text** and *italic text*\n\n- List item 1\n- List item 2"
 
-		post, err := service.CreatePost(title, content)
+		post, err := service.CreatePost(NOTES, title, content)
 		assert.Nil(t, err)
 
 		html := post.Html()

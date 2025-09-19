@@ -8,20 +8,30 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
+type Category string
+
+const (
+	ALL      Category = "all"
+	NOTES    Category = "notes"
+	PROJECTS Category = "proj"
+)
+
 type Post struct {
 	Id        int
 	Title     string
 	Content   string
+	Category  Category
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func newPost(title, content string) *Post {
+func newPost(cat Category, title, content string) *Post {
 	now := time.Now()
 
 	return &Post{
 		Title:     title,
 		Content:   content,
+		Category:  cat,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
@@ -41,8 +51,8 @@ func (p *Post) Html() string {
 
 // ============================================================================
 
-func createPost(repo Repository, title, content string) (*Post, error) {
-	md := newPost(title, content)
+func createPost(repo Repository, cat Category, title, content string) (*Post, error) {
+	md := newPost(cat, title, content)
 
 	if err := repo.SavePost(md); err != nil {
 		return nil, err

@@ -43,8 +43,9 @@ func handleGetPost(postService *post.Service) gin.HandlerFunc {
 func handleCreatePost(postService *post.Service) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req struct {
-			Title   string `json:"title"`
-			Content string `json:"content"`
+			Title    string        `json:"title"`
+			Category post.Category `json:"category"`
+			Content  string        `json:"content"`
 		}
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -52,7 +53,7 @@ func handleCreatePost(postService *post.Service) gin.HandlerFunc {
 			return
 		}
 
-		post, err := postService.CreatePost(req.Title, req.Content)
+		post, err := postService.CreatePost(req.Category, req.Title, req.Content)
 		if err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return

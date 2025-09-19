@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"blog-go/internal/post"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -14,11 +15,25 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
+	listCmd.Flags().Bool("notes", false, "Show only notes")
+	listCmd.Flags().Bool("proj", false, "Show only projects")
+
 	rootCmd.AddCommand(listCmd)
 }
 
 func listPost(cmd *cobra.Command, args []string) {
-	posts, err := postService.ListAllPosts()
+	catNotes, _ := cmd.Flags().GetBool("notes")
+	catProj, _ := cmd.Flags().GetBool("proj")
+
+	var cat post.Category = post.ALL
+
+	if catNotes {
+		cat = post.NOTES
+	} else if catProj {
+		cat = post.PROJECTS
+	}
+
+	posts, err := postService.ListCategory(cat)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -36,6 +51,6 @@ func listPost(cmd *cobra.Command, args []string) {
 			title = title[:37] + "..."
 		}
 
-		fmt.Printf("%-4d\t%-40s\t%v\n", post.Id, title, post.CreatedAt.Format("2006-01-02 15:04"))
+		fmt.Printf("%-4d %-7s %-40s %s\n", post.Id, post.Category, title, post.CreatedAt.Format("2006-01-02 15:04"))
 	}
 }
