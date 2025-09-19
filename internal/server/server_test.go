@@ -24,7 +24,7 @@ func setupTestServer(t *testing.T) (*gin.Engine, func()) {
 		DbPath:    ":memory:",
 	}
 
-	db, err := repo.ConnectDatabase(*cfg)
+	db, err := repo.ConnectDatabase(cfg)
 	assert.Nil(t, err)
 
 	authRepo, err := repo.NewAuthRepository(db)

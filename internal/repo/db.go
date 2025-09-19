@@ -11,7 +11,7 @@ type Database struct {
 	conn *sql.DB
 }
 
-func ConnectDatabase(cfg config.Config) (*Database, error) {
+func ConnectDatabase(cfg *config.Config) (*Database, error) {
 	conn, err := sql.Open("sqlite3", cfg.DbPath)
 	if err != nil {
 		return nil, err

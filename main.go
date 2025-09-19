@@ -2,6 +2,7 @@ package main
 
 import (
 	"blog-go/internal/auth"
+	"blog-go/internal/cli"
 	"blog-go/internal/config"
 	"blog-go/internal/post"
 	"blog-go/internal/repo"
@@ -18,6 +19,10 @@ import (
 )
 
 func main() {
+	cli.Execute()
+}
+
+func main2() {
 	cfg, db, router, err := prepare()
 	if err != nil {
 		panic(err)
@@ -64,7 +69,7 @@ func prepare() (*config.Config, *repo.Database, *gin.Engine, error) {
 		return nil, nil, nil, err
 	}
 
-	db, err := repo.ConnectDatabase(*cfg)
+	db, err := repo.ConnectDatabase(cfg)
 	if err != nil {
 		return nil, nil, nil, err
 	}
