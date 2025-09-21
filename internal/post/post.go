@@ -17,12 +17,12 @@ const (
 )
 
 type Post struct {
-	Id        int
-	Title     string
-	Content   string
-	Category  Category
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id        int       `json:"id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	Category  Category  `json:"category"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func newPost(cat Category, title, content string) *Post {

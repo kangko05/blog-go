@@ -8,6 +8,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func handleListProjects(postService *post.Service) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		notes, err := postService.ListProjects()
+		if err != nil {
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, notes)
+	}
+}
+
+func handleListNotes(postService *post.Service) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		notes, err := postService.ListNotes()
+		if err != nil {
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, notes)
+	}
+}
+
 func handleListAllPosts(postService *post.Service) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		posts, err := postService.ListAllPosts()
