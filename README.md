@@ -1,4 +1,4 @@
-# blog-Go
+# blog-go
 
 A modern personal blog system built with Go and React, featuring a powerful CLI for content management and a clean web interface.
 
