@@ -25,10 +25,11 @@ func SetupRouter(authService *auth.Service, postService *post.Service) *gin.Engi
 			"http://127.0.0.1:5173",
 		}
 	} else {
-		// config.AllowOrigins = []string{
-		// 	"https://mydomain.com",
-		// 	"https://www.mydomain.com",
-		// }
+		config.AllowOrigins = []string{
+			"*",
+			// "https://mydomain.com",
+			// "https://www.mydomain.com",
+		}
 	}
 
 	config.AllowMethods = []string{"GET"}

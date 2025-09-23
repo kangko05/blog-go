@@ -2,6 +2,8 @@ package repo
 
 import (
 	"blog-go/internal/post"
+	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -25,7 +27,8 @@ func (pr *PostRepository) createTables() error {
 			content TEXT NOT NULL,
 			category TEXT NOT NULL,
 			created_at DATETIME,
-			updated_at DATETIME
+			updated_at DATETIME,
+			tags TEXT
 		)`,
 	}
 
@@ -40,9 +43,14 @@ func (pr *PostRepository) createTables() error {
 }
 
 func (pr *PostRepository) SavePost(post *post.Post) error {
+	tagsJson, err := json.Marshal(post.Tags)
+	if err != nil {
+		return err
+	}
+
 	result, err := pr.db.command(
-		"INSERT INTO posts(title, content, category, created_at, updated_at) VALUES(?,?,?,?,?)",
-		post.Title, post.Content, post.Category, post.CreatedAt, post.UpdatedAt,
+		"INSERT INTO posts(title, content, category, created_at, updated_at, tags) VALUES(?,?,?,?,?,?)",
+		post.Title, post.Content, post.Category, post.CreatedAt, post.UpdatedAt, string(tagsJson),
 	)
 	if err != nil {
 		return err
@@ -73,9 +81,14 @@ func (pr *PostRepository) GetPost(id int) (*post.Post, error) {
 }
 
 func (pr *PostRepository) UpdatePost(post *post.Post) error {
-	_, err := pr.db.command(
-		"UPDATE posts SET title=?, content=?, updated_at=? WHERE id=?",
-		post.Title, post.Content, post.UpdatedAt, post.Id,
+	tagsJson, err := json.Marshal(post.Tags)
+	if err != nil {
+		return err
+	}
+
+	_, err = pr.db.command(
+		"UPDATE posts SET title=?, content=?, updated_at=?, tags=? WHERE id=?",
+		post.Title, post.Content, post.UpdatedAt, string(tagsJson), post.Id,
 	)
 
 	return err
@@ -87,7 +100,7 @@ func (pr *PostRepository) DeletePost(id int) error {
 }
 
 func (pr *PostRepository) ListPosts() ([]*post.Post, error) {
-	rows, err := pr.db.conn.Query("SELECT id,title,content,category,created_at,updated_at FROM posts")
+	rows, err := pr.db.conn.Query("SELECT id,title,content,category,created_at,updated_at,tags FROM posts")
 	if err != nil {
 		return nil, err
 	}
@@ -97,10 +110,15 @@ func (pr *PostRepository) ListPosts() ([]*post.Post, error) {
 
 	for rows.Next() {
 		var post post.Post
+		var tagsTxt string
 
-		err := rows.Scan(&post.Id, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.UpdatedAt)
+		err := rows.Scan(&post.Id, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.UpdatedAt, &tagsTxt)
 		if err != nil {
 			log.Println(err)
+		}
+
+		if err := json.Unmarshal([]byte(tagsTxt), &post.Tags); err != nil {
+			fmt.Println(err)
 		}
 
 		posts = append(posts, &post)

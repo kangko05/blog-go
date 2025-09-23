@@ -22,6 +22,7 @@ var createCmd = &cobra.Command{
 func init() {
 	createCmd.Flags().Bool("proj", false, "set category to projects")
 	createCmd.Flags().Bool("notes", false, "set category to notes")
+	createCmd.Flags().StringSliceP("tags", "t", nil, "set tags for the post")
 
 	rootCmd.AddCommand(createCmd)
 }
@@ -29,6 +30,7 @@ func init() {
 func createPost(cmd *cobra.Command, args []string) {
 	catNotes, _ := cmd.Flags().GetBool("notes")
 	catProj, _ := cmd.Flags().GetBool("proj")
+	tags, _ := cmd.Flags().GetStringSlice("tags")
 
 	if !(catNotes || catProj) {
 		fmt.Println("please specify a category: --notes or --proj")
@@ -82,7 +84,7 @@ func createPost(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if _, err := postService.CreatePost(cat, extractTitle(content), string(content)); err != nil {
+	if _, err := postService.CreatePost(cat, extractTitle(content), string(content), tags); err != nil {
 		fmt.Println(err)
 		return
 	} else {

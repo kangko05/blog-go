@@ -17,16 +17,16 @@ func NewService(repo Repository) (*Service, error) {
 	return &Service{repo: repo}, nil
 }
 
-func (ps *Service) CreatePost(cat Category, title, content string) (*Post, error) {
-	return createPost(ps.repo, cat, title, content)
+func (ps *Service) CreatePost(cat Category, title, content string, tags []string) (*Post, error) {
+	return createPost(ps.repo, cat, title, content, tags)
 }
 
 func (ps *Service) GetPost(id int) (*Post, error) {
 	return getPost(ps.repo, id)
 }
 
-func (ps *Service) UpdatePost(id int, title, content string) error {
-	return updatePost(ps.repo, id, title, content)
+func (ps *Service) UpdatePost(id int, title, content string, tags []string) error {
+	return updatePost(ps.repo, id, title, content, tags)
 }
 
 func (ps *Service) DeletePost(id int) error {

@@ -3,6 +3,7 @@ package cli
 import (
 	"blog-go/internal/post"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -51,6 +52,6 @@ func listPost(cmd *cobra.Command, args []string) {
 			title = title[:37] + "..."
 		}
 
-		fmt.Printf("%-4d %-7s %-40s %s\n", post.Id, post.Category, title, post.CreatedAt.Format("2006-01-02 15:04"))
+		fmt.Printf("%-4d %-7s %-40s %-20s %s\n", post.Id, post.Category, title, post.CreatedAt.Format("2006-01-02 15:04"), strings.Join(post.Tags, ","))
 	}
 }

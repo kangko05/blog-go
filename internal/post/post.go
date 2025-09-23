@@ -1,6 +1,7 @@
 package post
 
 import (
+	"slices"
 	"time"
 
 	"github.com/gomarkdown/markdown"
@@ -23,9 +24,10 @@ type Post struct {
 	Category  Category  `json:"category"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Tags      []string  `json:"tags"`
 }
 
-func newPost(cat Category, title, content string) *Post {
+func newPost(cat Category, title, content string, tags []string) *Post {
 	now := time.Now()
 
 	return &Post{
@@ -34,6 +36,7 @@ func newPost(cat Category, title, content string) *Post {
 		Category:  cat,
 		CreatedAt: now,
 		UpdatedAt: now,
+		Tags:      tags,
 	}
 }
 
@@ -51,8 +54,8 @@ func (p *Post) Html() string {
 
 // ============================================================================
 
-func createPost(repo Repository, cat Category, title, content string) (*Post, error) {
-	md := newPost(cat, title, content)
+func createPost(repo Repository, cat Category, title, content string, tags []string) (*Post, error) {
+	md := newPost(cat, title, content, tags)
 
 	if err := repo.SavePost(md); err != nil {
 		return nil, err
@@ -65,7 +68,7 @@ func getPost(repo Repository, id int) (*Post, error) {
 	return repo.GetPost(id)
 }
 
-func updatePost(repo Repository, id int, title, content string) error {
+func updatePost(repo Repository, id int, title, content string, tags []string) error {
 	foundMd, err := repo.GetPost(id)
 	if err != nil {
 		return err
@@ -74,6 +77,12 @@ func updatePost(repo Repository, id int, title, content string) error {
 	foundMd.Title = title
 	foundMd.Content = content
 	foundMd.UpdatedAt = time.Now()
+
+	for _, t := range tags {
+		if !slices.Contains(foundMd.Tags, t) {
+			foundMd.Tags = append(foundMd.Tags, t)
+		}
+	}
 
 	return repo.UpdatePost(foundMd)
 }

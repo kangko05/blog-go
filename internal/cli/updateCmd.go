@@ -18,10 +18,13 @@ var updateCmd = &cobra.Command{
 }
 
 func init() {
+	updateCmd.Flags().StringSliceP("tags", "t", nil, "update tags for the post")
 	rootCmd.AddCommand(updateCmd)
 }
 
 func updatePost(cmd *cobra.Command, args []string) {
+	tags, _ := cmd.Flags().GetStringSlice("tags")
+
 	id, err := strconv.Atoi(args[0])
 	if err != nil {
 		fmt.Println(err)
@@ -71,7 +74,7 @@ func updatePost(cmd *cobra.Command, args []string) {
 
 	title := extractTitle(rb)
 
-	if err := postService.UpdatePost(id, title, string(rb)); err != nil {
+	if err := postService.UpdatePost(id, title, string(rb), tags); err != nil {
 		fmt.Printf("update cancelled: %v\n", err)
 		return
 	}

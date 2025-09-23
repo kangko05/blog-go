@@ -19,12 +19,14 @@ var importCmd = &cobra.Command{
 func init() {
 	importCmd.Flags().Bool("proj", false, "set category to projects")
 	importCmd.Flags().Bool("notes", false, "set category to notes")
+	importCmd.Flags().StringSliceP("tags", "t", nil, "set tags for the post")
 	rootCmd.AddCommand(importCmd)
 }
 
 func importPost(cmd *cobra.Command, args []string) {
 	catNotes, _ := cmd.Flags().GetBool("notes")
 	catProj, _ := cmd.Flags().GetBool("proj")
+	tags, _ := cmd.Flags().GetStringSlice("tags")
 
 	if !(catNotes || catProj) {
 		fmt.Println("please specify a category: --notes or --proj")
@@ -50,7 +52,7 @@ func importPost(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if _, err := postService.CreatePost(cat, extractTitle(rb), string(rb)); err != nil {
+	if _, err := postService.CreatePost(cat, extractTitle(rb), string(rb), tags); err != nil {
 		fmt.Println(err)
 		return
 	}

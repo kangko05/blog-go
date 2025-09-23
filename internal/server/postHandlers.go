@@ -70,6 +70,7 @@ func handleCreatePost(postService *post.Service) gin.HandlerFunc {
 			Title    string        `json:"title"`
 			Category post.Category `json:"category"`
 			Content  string        `json:"content"`
+			Tags     []string      `json:"tags"`
 		}
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -77,7 +78,7 @@ func handleCreatePost(postService *post.Service) gin.HandlerFunc {
 			return
 		}
 
-		post, err := postService.CreatePost(req.Category, req.Title, req.Content)
+		post, err := postService.CreatePost(req.Category, req.Title, req.Content, req.Tags)
 		if err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return
@@ -98,8 +99,9 @@ func handleUpdatePost(postService *post.Service) gin.HandlerFunc {
 		}
 
 		var req struct {
-			Title   string `json:"title"`
-			Content string `json:"content"`
+			Title   string   `json:"title"`
+			Content string   `json:"content"`
+			Tags    []string `json:"tags"`
 		}
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -107,7 +109,7 @@ func handleUpdatePost(postService *post.Service) gin.HandlerFunc {
 			return
 		}
 
-		if err := postService.UpdatePost(id, req.Title, req.Content); err != nil {
+		if err := postService.UpdatePost(id, req.Title, req.Content, req.Tags); err != nil {
 			ctx.Status(http.StatusInternalServerError)
 			return
 		}
