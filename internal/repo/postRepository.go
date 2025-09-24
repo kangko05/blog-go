@@ -68,12 +68,17 @@ func (pr *PostRepository) SavePost(post *post.Post) error {
 
 func (pr *PostRepository) GetPost(id int) (*post.Post, error) {
 	var post post.Post
+	var tagStr string
 
 	err := pr.db.queryRow(
-		"SELECT id,title,content,category,created_at,updated_at FROM posts WHERE id=?",
-		id).Scan(&post.Id, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.UpdatedAt)
+		"SELECT id,title,content,category,created_at,updated_at,tags FROM posts WHERE id=?",
+		id).Scan(&post.Id, &post.Title, &post.Content, &post.Category, &post.CreatedAt, &post.UpdatedAt, &tagStr)
 
 	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal([]byte(tagStr), &post.Tags); err != nil {
 		return nil, err
 	}
 
